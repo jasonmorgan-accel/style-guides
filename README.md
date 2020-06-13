@@ -7,8 +7,6 @@ output:
 ---
 # Style Guides
 
-{:toc}
-
 ## SQL
 
 ## Python
