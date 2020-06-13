@@ -1,1 +1,8 @@
 theme: jekyll-theme-cayman
+markdown: kramdown
+kramdown:
+   input: GFM
+   html_to_native: true
+   hard_wrap: false
+   syntax_highlighter: rouge
+   toc_levels: 2..2
