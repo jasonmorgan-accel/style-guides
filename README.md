@@ -1,4 +1,4 @@
-# style-guides
+# Style Guides
 
 ## SQL
 
