@@ -6,3 +6,5 @@ kramdown:
    hard_wrap: false
    syntax_highlighter: rouge
    toc_levels: 2..2
+plugins:
+  - jekyll-toc
