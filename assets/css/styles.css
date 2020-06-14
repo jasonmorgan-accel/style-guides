@@ -1,0 +1,9 @@
+.button.is-info {
+	margin: 7px;
+}
+
+@media screen and (min-width: 769px), print {
+	.hero.is-medium .hero-body {
+		padding: 5rem 1rem;
+	}
+}

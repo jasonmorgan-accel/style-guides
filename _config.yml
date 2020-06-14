@@ -1,4 +1,4 @@
-theme: jekyll-theme-cayman
+theme: bulma-clean-theme
 markdown: kramdown
 kramdown:
    input: GFM
@@ -6,5 +6,3 @@ kramdown:
    hard_wrap: false
    syntax_highlighter: rouge
    toc_levels: 2..2
-plugins:
-  - jekyll-toc

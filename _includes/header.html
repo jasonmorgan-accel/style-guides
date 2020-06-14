@@ -1,0 +1,49 @@
+<nav class="navbar is-primary" >
+    <div class="container">
+
+        <div class="navbar-menu" id="navMenu">
+            <div class="navbar-start">
+				{% assign menus = site.pages | where: 'nav', true | sort: 'order' | group_by: 'category' %}
+				{% for cat in menus %}
+					{% if cat.name %}
+						<!-- get  the  first item-->
+						{% assign root_item = cat.items.first %}
+						{% assign items = cat.items %}
+						{% if cat.name == "Home" %}
+							{% assign items = cat.items | shift %}
+						{% endif %}
+						<div class="navbar-item {% if items.size > 0 %}has-dropdown is-hoverable{% endif %}">
+							
+							<a href="{{ root_item.url | prepend: site.baseurl }}" class="navbar-{% if items.size > 0 %}link{% else %}item{% endif %} {% if root_item.url == page.url %}is-active{% endif %}">{{ cat.name }}</a>
+							<div class="navbar-dropdown">
+								{% for item in items %}
+									<a href="{{ item.url | prepend: site.baseurl }}" class="navbar-item {% if item.url == page.url %}is-active{% endif %}">{{ item.title }}</a>
+								{% endfor %}
+							</div>
+						</div>
+					{% endif %}
+				{% endfor %}
+            </div>
+
+            <div class="navbar-end">
+                {% if site.gh_sponsor %}
+                <a class="navbar-item" href="https://github.com/sponsors/{{ site.gh_sponsor }}">
+                    <span class="icon gh-sponsor"><i class="fas fa-heart"></i></span>
+                    <span>Sponsor</span>
+                </a>
+                {% endif %}
+			</div>
+			{% if page.hero_link %}
+				<a href="{{ page.hero_link | prepend: site.baseurl  }}" class="button is-info is-large">{{ page.hero_link_text }}</a>
+			{% endif %}
+			{% if site.github.is_project_page %}
+				<a href="{{ site.github.repository_url }}" class="button is-info">View on GitHub</a>
+			{% endif %}
+			{% if site.show_downloads %}
+				<a href="{{ site.github.zip_url }}" class="button is-info is-large">Download .zip</a>
+				<a href="{{ site.github.tar_url }}" class="button is-info is-large">Download .tar.gz</a>
+			{% endif %}
+
+        </div>
+    </div>
+</nav>
