@@ -1,7 +1,7 @@
 ---
 title: Shell Style Guide
 category: Shell
-order: 30
+order: 22
 nav: true
 ---
 <!--
