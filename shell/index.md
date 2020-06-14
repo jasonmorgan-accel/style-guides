@@ -13,20 +13,20 @@ See README.md for details.
 ## Overview
 
 <!-- The revision number is maintained manually.
-     The major number is:
-       1 = shell.xml
-       2 = shell.md
-     The major number is also hard-coded at the bottom of this file. -->
+		 The major number is:
+			 1 = shell.xml
+			 2 = shell.md
+		 The major number is also hard-coded at the bottom of this file. -->
 
-Revision 2.02
+Revision 3.0
 
-Authored, revised and maintained by many Googlers.
+Based on shell style guide Authored, revised and maintained by many Googlers. https://github.com/google/styleguide/blob/gh-pages/shellguide.md
 
 ## Table of Contents
 
 Section                                                                              | Contents
 ------------------------------------------------------------------------------------ | --------
-[Background](#s1-background)                                                         | [Which Shell to Use](#s1.1-which-shell-to-use) - [When to use Shell](#s1.2-when-to-use-shell)
+[Background](#s1-background)                                                         | [Which Shell to Use](#s1.1-which-shell-to-use) - [When to use Shell](#when-to-use-shell)
 [Shell Files and Interpreter Invocation](#s2-shell-files-and-interpreter-invocation) | [File Extensions](#s2.1-file-extensions) - [SUID/SGID](#s2.2-suid-sgid)
 [Environment](#s3-environment)                                                       | [STDOUT vs STDERR](#s3.1-stdout-vs-stderr)
 [Comments](#s4-comments)                                                             | [File Header](#s4.1-file-header) - [Function Comments](#s4.2-function-comments) - [Implementation Comments](#s4.3-implementation-comments) - [TODO Comments](#s4.4-todo-comments)
@@ -75,16 +75,16 @@ used for widespread deployment.
 Some guidelines:
 
 *   If you're mostly calling other utilities and are doing relatively
-    little data manipulation, shell is an acceptable choice for the task.
+		little data manipulation, shell is an acceptable choice for the task.
 *   If performance matters, use something other than shell.
 *   If you are writing a script that is more than 100 lines long, or
-    that uses non-straightforward control flow logic, you should
-    rewrite it in a more structured language *now*. Bear in
-    mind that scripts grow. Rewrite your script early to avoid a more
-    time-consuming rewrite at a later date.
+		that uses non-straightforward control flow logic, you should
+		rewrite it in a more structured language *now*. Bear in
+		mind that scripts grow. Rewrite your script early to avoid a more
+		time-consuming rewrite at a later date.
 *   When assessing the complexity of your code (e.g. to decide whether
-    to switch languages) consider whether the code is easily
-    maintainable by people other than its author.
+		to switch languages) consider whether the code is easily
+		maintainable by people other than its author.
 
 <a id="s2-shell-files-and-interpreter-invocation"></a>
 
@@ -138,12 +138,12 @@ information is recommended.
 
 ```shell
 err() {
-  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
+	echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
 }
 
 if ! do_something; then
-  err "Unable to do_something"
-  exit 1
+	err "Unable to do_something"
+	exit 1
 fi
 ```
 
@@ -189,7 +189,7 @@ All function comments should describe the intended API behaviour using:
 *   Arguments: Arguments taken.
 *   Outputs: Output to STDOUT or STDERR.
 *   Returns: Returned values other than the default exit status of the
-    last command run.
+		last command run.
 
 Example:
 
@@ -203,7 +203,7 @@ Example:
 #   None
 #######################################
 function cleanup() {
-  …
+	…
 }
 
 #######################################
@@ -216,7 +216,7 @@ function cleanup() {
 #   Writes location to stdout
 #######################################
 function get_dir() {
-  echo "${SOMEDIR}"
+	echo "${SOMEDIR}"
 }
 
 #######################################
@@ -227,7 +227,7 @@ function get_dir() {
 #   0 if thing was deleted, non-zero on error.
 #######################################
 function del_thing() {
-  rm "$1"
+	rm "$1"
 }
 ```
 
@@ -279,11 +279,15 @@ you're modifying, the following are required for any new code.
 
 ### Indentation
 
-Indent 2 spaces. No tabs.
+Indent 1 tab. No spaces :).
 
 Use blank lines between blocks to improve readability. Indentation is
-two spaces. Whatever you do, don't use tabs. For existing files, stay
-faithful to the existing indentation.
+1 tab. Whatever you do, be consistent. For existing files, stay
+faithful to the existing indentation or even better 
+```
+Cmd + Shift + P >Convert Indentation to Tabs
+Cmd + Shift + P >Indent Unsing table + Tab size 4
+```
 
 <a id="s5.2-line-length-and-long-strings"></a>
 
@@ -319,7 +323,7 @@ line.
 If a pipeline all fits on one line, it should be on one line.
 
 If not, it should be split at one pipe segment per line with the pipe
-on the newline and a 2 space indent for the next section of the pipe.
+on the newline and an indent for the next section of the pipe.
 This applies to a chain of commands combined using `|` as well as to
 logical compounds using `||` and `&&`.
 
@@ -329,9 +333,9 @@ command1 | command2
 
 # Long commands
 command1 \
-  | command2 \
-  | command3 \
-  | command4
+	| command2 \
+	| command3 \
+	| command4
 ```
 
 <a id="s5.4-loops"></a>
@@ -355,18 +359,18 @@ Example:
 # a local to avoid it leaking into the global environment:
 # local dir
 for dir in "${dirs_to_cleanup[@]}"; do
-  if [[ -d "${dir}/${ORACLE_SID}" ]]; then
-    log_date "Cleaning up old files in ${dir}/${ORACLE_SID}"
-    rm "${dir}/${ORACLE_SID}/"*
-    if (( $? != 0 )); then
-      error_message
-    fi
-  else
-    mkdir -p "${dir}/${ORACLE_SID}"
-    if (( $? != 0 )); then
-      error_message
-    fi
-  fi
+	if [[ -d "${dir}/${ORACLE_SID}" ]]; then
+		log_date "Cleaning up old files in ${dir}/${ORACLE_SID}"
+		rm "${dir}/${ORACLE_SID}/"*
+		if (( $? != 0 )); then
+			error_message
+		fi
+	else
+		mkdir -p "${dir}/${ORACLE_SID}"
+		if (( $? != 0 )); then
+			error_message
+		fi
+	fi
 done
 ```
 
@@ -374,12 +378,12 @@ done
 
 ### Case statement
 
-*   Indent alternatives by 2 spaces.
+*   Indent alternatives by 1 tab.
 *   A one-line alternative needs a space after the close parenthesis of
-    the pattern and before the `;;`.
+		the pattern and before the `;;`.
 *   Long or multi-command alternatives should be split over multiple
-    lines with the pattern, actions, and `;;` on separate
-    lines.
+		lines with the pattern, actions, and `;;` on separate
+		lines.
 
 The matching expressions are indented one level from the `case` and `esac`.
 Multiline actions are indented another level. In general, there is no need to
@@ -388,17 +392,17 @@ parenthesis. Avoid the `;&` and `;;&` notations.
 
 ```shell
 case "${expression}" in
-  a)
-    variable="…"
-    some_command "${variable}" "${other_expr}" …
-    ;;
-  absolute)
-    actions="relative"
-    another_command "${actions}" "${other_expr}" …
-    ;;
-  *)
-    error "Unexpected expression '${expression}'"
-    ;;
+	a)
+		variable="…"
+		some_command "${variable}" "${other_expr}" …
+		;;
+	absolute)
+		actions="relative"
+		another_command "${actions}" "${other_expr}" …
+		;;
+	*)
+		error "Unexpected expression '${expression}'"
+		;;
 esac
 ```
 
@@ -416,13 +420,13 @@ aflag=''
 bflag=''
 files=''
 while getopts 'abf:v' flag; do
-  case "${flag}" in
-    a) aflag='true' ;;
-    b) bflag='true' ;;
-    f) files="${OPTARG}" ;;
-    v) verbose='true' ;;
-    *) error "Unexpected option ${flag}" ;;
-  esac
+	case "${flag}" in
+		a) aflag='true' ;;
+		b) bflag='true' ;;
+		f) files="${OPTARG}" ;;
+		v) verbose='true' ;;
+		*) error "Unexpected option ${flag}" ;;
+	esac
 done
 ```
 
@@ -442,44 +446,44 @@ They are listed in order of precedence.
 *   Stay consistent with what you find for existing code.
 *   Quote variables, see [Quoting section below](#quoting).
 *   Don't brace-delimit single character shell specials / positional parameters,
-    unless strictly necessary or avoiding deep confusion.
+		unless strictly necessary or avoiding deep confusion.
 
-    Prefer brace-delimiting all other variables.
+		Prefer brace-delimiting all other variables.
 
-    ```shell
-    # Section of *recommended* cases.
+		```shell
+		# Section of *recommended* cases.
 
-    # Preferred style for 'special' variables:
-    echo "Positional: $1" "$5" "$3"
-    echo "Specials: !=$!, -=$-, _=$_. ?=$?, #=$# *=$* @=$@ \$=$$ …"
+		# Preferred style for 'special' variables:
+		echo "Positional: $1" "$5" "$3"
+		echo "Specials: !=$!, -=$-, _=$_. ?=$?, #=$# *=$* @=$@ \$=$$ …"
 
-    # Braces necessary:
-    echo "many parameters: ${10}"
+		# Braces necessary:
+		echo "many parameters: ${10}"
 
-    # Braces avoiding confusion:
-    # Output is "a0b0c0"
-    set -- a b c
-    echo "${1}0${2}0${3}0"
+		# Braces avoiding confusion:
+		# Output is "a0b0c0"
+		set -- a b c
+		echo "${1}0${2}0${3}0"
 
-    # Preferred style for other variables:
-    echo "PATH=${PATH}, PWD=${PWD}, mine=${some_var}"
-    while read -r f; do
-      echo "file=${f}"
-    done < <(find /tmp)
-    ```
+		# Preferred style for other variables:
+		echo "PATH=${PATH}, PWD=${PWD}, mine=${some_var}"
+		while read -r f; do
+			echo "file=${f}"
+		done < <(find /tmp)
+		```
 
-    ```shell
-    # Section of *discouraged* cases
+		```shell
+		# Section of *discouraged* cases
 
-    # Unquoted vars, unbraced vars, brace-delimited single letter
-    # shell specials.
-    echo a=$avar "b=$bvar" "PID=${$}" "${1}"
+		# Unquoted vars, unbraced vars, brace-delimited single letter
+		# shell specials.
+		echo a=$avar "b=$bvar" "PID=${$}" "${1}"
 
-    # Confusing use: this is expanded as "${1}0${2}0${3}0",
-    # not "${10}${20}${30}
-    set -- a b c
-    echo "$10$20$30"
-    ```
+		# Confusing use: this is expanded as "${1}0${2}0${3}0",
+		# not "${10}${20}${30}
+		set -- a b c
+		echo "$10$20$30"
+		```
 
 NOTE: Using braces in `${var}` is *not* a form of quoting. "Double quotes" must
 be used *as well*.
@@ -489,20 +493,20 @@ be used *as well*.
 ### Quoting
 
 *   Always quote strings containing variables, command substitutions, spaces or
-    shell meta characters, unless careful unquoted expansion is required or it's
-    a shell-internal integer (see next point).
+		shell meta characters, unless careful unquoted expansion is required or it's
+		a shell-internal integer (see next point).
 *   Use arrays for safe quoting of lists of elements, especially command-line
-    flags. See [Arrays](#arrays) below.
+		flags. See [Arrays](#arrays) below.
 *   Optionally quote shell-internal, readonly special variables that are defined
-    to be integers: `$?`, `$#`, `$$`, `$!` (man bash). Prefer quoting of "named"
-    internal integer variables, e.g. PPID etc for consistency.
+		to be integers: `$?`, `$#`, `$$`, `$!` (man bash). Prefer quoting of "named"
+		internal integer variables, e.g. PPID etc for consistency.
 *   Prefer quoting strings that are "words" (as opposed to command options or
-    path names).
+		path names).
 *   Never quote *literal* integers.
 *   Be aware of the quoting rules for pattern matches in `[[ … ]]`. See the
-    [Test, `[ … ]`, and `[[ … ]]`](#tests) section below.
+		[Test, `[ … ]`, and `[[ … ]]`](#tests) section below.
 *   Use `"$@"` unless you have a specific reason to use `$*`, such as simply
-    appending the arguments to a string in a message or log.
+		appending the arguments to a string in a message or log.
 
 ```shell
 # 'Single' quotes indicate that no substitution is desired.
@@ -525,7 +529,7 @@ mybinary "${FLAGS[@]}"
 
 # It's ok to not quote internal integer variables.
 if (( $# > 3 )); then
-  echo "ppid=${PPID}"
+	echo "ppid=${PPID}"
 fi
 
 # "never quote literal integers"
@@ -623,12 +627,12 @@ while `[ … ]` does not.
 # the alnum character class followed by the string name.
 # Note that the RHS should not be quoted here.
 if [[ "filename" =~ ^[[:alnum:]]+name ]]; then
-  echo "Match"
+	echo "Match"
 fi
 
 # This matches the exact pattern "f*" (Does not match in this case)
 if [[ "filename" == "f*" ]]; then
-  echo "Match"
+	echo "Match"
 fi
 ```
 
@@ -636,7 +640,7 @@ fi
 # This gives a "too many arguments" error as f* is expanded to the
 # contents of the current directory
 if [ "filename" == f* ]; then
-  echo "Match"
+	echo "Match"
 fi
 ```
 
@@ -655,25 +659,25 @@ strings or empty strings rather than filler characters.
 ```shell
 # Do this:
 if [[ "${my_var}" == "some_string" ]]; then
-  do_something
+	do_something
 fi
 
 # -z (string length is zero) and -n (string length is not zero) are
 # preferred over testing for an empty string
 if [[ -z "${my_var}" ]]; then
-  do_something
+	do_something
 fi
 
 # This is OK (ensure quotes on the empty side), but not preferred:
 if [[ "${my_var}" == "" ]]; then
-  do_something
+	do_something
 fi
 ```
 
 ```shell
 # Not this:
 if [[ "${my_var}X" == "some_stringX" ]]; then
-  do_something
+	do_something
 fi
 ```
 
@@ -683,14 +687,14 @@ To avoid confusion about what you're testing for, explicitly use
 ```shell
 # Use this
 if [[ -n "${my_var}" ]]; then
-  do_something
+	do_something
 fi
 ```
 
 ```shell
 # Instead of this
 if [[ "${my_var}" ]]; then
-  do_something
+	do_something
 fi
 ```
 
@@ -705,28 +709,28 @@ numerical comparison.
 ```shell
 # Use this
 if [[ "${my_var}" == "val" ]]; then
-  do_something
+	do_something
 fi
 
 if (( my_var > 3 )); then
-  do_something
+	do_something
 fi
 
 if [[ "${my_var}" -gt 3 ]]; then
-  do_something
+	do_something
 fi
 ```
 
 ```shell
 # Instead of this
 if [[ "${my_var}" = "val" ]]; then
-  do_something
+	do_something
 fi
 
 # Probably unintended lexicographical comparison.
 if [[ "${my_var}" > 3 ]]; then
-  # True for 4, false for 22.
-  do_something
+	# True for 4, false for 22.
+	do_something
 fi
 ```
 
@@ -833,10 +837,10 @@ mybinary $(get_arguments)
 #### Arrays Pros
 
 *   Using Arrays allows lists of things without confusing quoting
-    semantics. Conversely, not using arrays leads to misguided
-    attempts to nest quoting inside a string.
+		semantics. Conversely, not using arrays leads to misguided
+		attempts to nest quoting inside a string.
 *   Arrays make it possible to safely store sequences/lists of
-    arbitrary strings, including strings containing whitespace.
+		arbitrary strings, including strings containing whitespace.
 
 <a id="s6.7.2-arrays-cons"></a>
 
@@ -869,9 +873,9 @@ hard to track down.
 ```shell
 last_line='NULL'
 your_command | while read -r line; do
-  if [[ -n "${line}" ]]; then
-    last_line="${line}"
-  fi
+	if [[ -n "${line}" ]]; then
+		last_line="${line}"
+	fi
 done
 
 # This will always output 'NULL'!
@@ -885,9 +889,9 @@ other command) in a subshell.
 ```shell
 last_line='NULL'
 while read line; do
-  if [[ -n "${line}" ]]; then
-    last_line="${line}"
-  fi
+	if [[ -n "${line}" ]]; then
+		last_line="${line}"
+	fi
 done < <(your_command)
 
 # This will output the last non-empty line from your_command
@@ -904,9 +908,9 @@ rather than after.
 last_line='NULL'
 readarray -t lines < <(your_command)
 for line in "${lines[@]}"; do
-  if [[ -n "${line}" ]]; then
-    last_line="${line}"
-  fi
+	if [[ -n "${line}" ]]; then
+		last_line="${line}"
+	fi
 done
 echo "${last_line}"
 ```
@@ -946,7 +950,7 @@ echo "$(( 2 + 2 )) is 4"
 
 # When performing arithmetic comparisons for testing
 if (( a < b )); then
-  …
+	…
 fi
 
 # Some calculation assigned to a variable.
@@ -1024,12 +1028,12 @@ function name and the parenthesis.
 ```shell
 # Single function
 my_func() {
-  …
+	…
 }
 
 # Part of a package
 mypackage::my_func() {
-  …
+	…
 }
 ```
 
@@ -1048,7 +1052,7 @@ you're looping through.
 
 ```shell
 for zone in "${zones[@]}"; do
-  something_with "${zone}"
+	something_with "${zone}"
 done
 ```
 
@@ -1078,9 +1082,9 @@ recommended instead of the equivalent `declare` commands.
 ```shell
 VERBOSE='false'
 while getopts 'v' flag; do
-  case "${flag}" in
-    v) VERBOSE='true' ;;
-  esac
+	case "${flag}" in
+		v) VERBOSE='true' ;;
+	esac
 done
 readonly VERBOSE
 ```
@@ -1109,9 +1113,9 @@ be read-only, make this explicit.
 ```shell
 zip_version="$(dpkg --status zip | grep Version: | cut -d ' ' -f 2)"
 if [[ -z "${zip_version}" ]]; then
-  error_message
+	error_message
 else
-  readonly zip_version
+	readonly zip_version
 fi
 ```
 
@@ -1134,25 +1138,25 @@ command substitution.
 
 ```shell
 my_func2() {
-  local name="$1"
+	local name="$1"
 
-  # Separate lines for declaration and assignment:
-  local my_var
-  my_var="$(my_func)"
-  (( $? == 0 )) || return
+	# Separate lines for declaration and assignment:
+	local my_var
+	my_var="$(my_func)"
+	(( $? == 0 )) || return
 
-  …
+	…
 }
 ```
 
 ```shell
 my_func2() {
-  # DO NOT do this:
-  # $? will always be zero, as it contains the exit code of 'local', not my_func
-  local my_var="$(my_func)"
-  (( $? == 0 )) || return
+	# DO NOT do this:
+	# $? will always be zero, as it contains the exit code of 'local', not my_func
+	local my_var="$(my_func)"
+	(( $? == 0 )) || return
 
-  …
+	…
 }
 ```
 
@@ -1206,15 +1210,15 @@ Example:
 
 ```shell
 if ! mv "${file_list[@]}" "${dest_dir}/"; then
-  echo "Unable to move ${file_list[*]} to ${dest_dir}" >&2
-  exit 1
+	echo "Unable to move ${file_list[*]} to ${dest_dir}" >&2
+	exit 1
 fi
 
 # Or
 mv "${file_list[@]}" "${dest_dir}/"
 if (( $? != 0 )); then
-  echo "Unable to move ${file_list[*]} to ${dest_dir}" >&2
-  exit 1
+	echo "Unable to move ${file_list[*]} to ${dest_dir}" >&2
+	exit 1
 fi
 ```
 
@@ -1226,7 +1230,7 @@ following is acceptable:
 ```shell
 tar -cf - ./* | ( cd "${dir}" && tar -xf - )
 if (( PIPESTATUS[0] != 0 || PIPESTATUS[1] != 0 )); then
-  echo "Unable to tar files to ${dir}" >&2
+	echo "Unable to tar files to ${dir}" >&2
 fi
 ```
 
@@ -1241,10 +1245,10 @@ wipe out `PIPESTATUS`).
 tar -cf - ./* | ( cd "${DIR}" && tar -xf - )
 return_codes=( "${PIPESTATUS[@]}" )
 if (( return_codes[0] != 0 )); then
-  do_something
+	do_something
 fi
 if (( return_codes[1] != 0 )); then
-  do_something_else
+	do_something_else
 fi
 ```
 
