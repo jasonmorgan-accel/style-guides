@@ -1,6 +1,6 @@
 ---
 title: Shell Style Guide
-category: Shell
+category: Languages
 order: 22
 nav: true
 ---
