@@ -1,7 +1,7 @@
 ---
-title: Javascript(NodeJS) Style Guide
+title: Javascript(React) Style Guide
 category: Languages
-order: 20
+order: 21
 nav: true
 ---
 ## Overview
