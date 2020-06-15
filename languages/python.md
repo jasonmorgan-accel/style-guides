@@ -1,7 +1,7 @@
 ---
 title: Python Style Guide
 category: Languages
-order: 20
+order: 22
 nav: true
 ---
 
