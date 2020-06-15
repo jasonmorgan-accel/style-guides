@@ -5,9 +5,52 @@ order: 10
 nav: true
 ---
 ## Overview
-This the style guide for ANSI SQL
+This the style guide for SQL Development.  This is primarily target to SQL Server (TSQL), RedShift/postgres (PSQL) and mysql although most concepts will directy translate to other targets.
 
-## General
+## Purpose
+
+Maintaining reproducibility and transparency is a core value of any successful data team, and a SQL style guide can help achieve that goal. Additionally, adhering to the basic rules in this style guide will improve our ability to share, maintain, and extend our reach when working with SQL.
+
+This document is written as a manual for anyone working on SQL, but also as a guide for anyone at the company who would like to write clean and clear code that is meant to be shared.
+
+The individual tips in this guide are based on a composite of knowledge we've gleaned from experience and our roles at previous jobs.
+
+## Principles
+
+* We take a disciplined and practical approach to writing code.
+* We regularly check-in code to Github
+* We believe consistency in style is very important.
+* We demonstrate intent explicitly in code, via clear structure and comments where needed.
+
+## Rules
+
+### General stuff
+
+* No spaces. 1 tab per indent.
+* No trailing whitespace.
+* Always capitalize SQL keywords (e.g., `SELECT` or `AS`)
+* Variable names should be underscore separated:
+
+  __GOOD__:
+  `SELECT COUNT(*) AS backers_count`
+
+  __BAD__:
+  `SELECT COUNT(*) AS backersCount`
+
+* Comments should go near the top of your query, or at least near the closest `SELECT`
+* Try to only comment on things that aren't obvious about the query (e.g., why a particular ID is hardcoded, etc.)
+* Don't use single letter variable names be as descriptive as possible given the context:
+
+  __GOOD__:
+  `SELECT ksr.backings AS backings_with_creators`
+
+  __BAD__:
+  `SELECT ksr.backings AS b`
+
+* Use [Common Table Expressions](http://www.postgresql.org/docs/8.4/static/queries-with.html) (CTEs) early and often, and name them well.
+* `HAVING` isn't supported in Redshift, so use CTEs instead. If you don't know what this means, ask a friendly Data Team member.
+
+
 ### Do
 
 * Use consistent and descriptive identifiers and names.
@@ -167,274 +210,271 @@ and understood easily from SQL code. Use the correct suffix where appropriate.
 * `_addr`—an address for the record could be physical or intangible such as
   `ip_addr`.
 
-## Query syntax
 
-### Reserved words
+## `SELECT`
 
-Always use uppercase for the [reserved keywords][reserved-keywords]
-like `SELECT` and `WHERE`.
-
-It is best to avoid the abbreviated keywords and use the full length ones where
-available (prefer `ABSOLUTE` to `ABS`).
-
-Do not use database server specific keywords where an ANSI SQL keyword already
-exists performing the same function. This helps to make code more portable.
+Align all columns to the first column on their own line:
 
 ```sql
-SELECT phones."model_num"
-FROM "phones" AS phones
-WHERE phone."release_date" > '2014-09-30';
+SELECT
+  projects.name,
+  users.email,
+  projects.country,
+  COUNT(backings.id) AS backings_count
+FROM ...
 ```
 
-### White space
-
-To make the code easier to read it is important that the correct compliment of
-spacing is used. Do not crowd code or remove natural language spaces.
-
-#### Spaces
-
-Spaces should be used to line up the code so that the root keywords all end on
-the same character boundary. This forms a river down the middle making it easy for
-the readers eye to scan over the code and separate the keywords from the
-implementation detail. Rivers are [bad in typography][rivers], but helpful here.
+`SELECT` goes on its own line:
 
 ```sql
-SELECT plant.average_height, plant.average_diameter
-FROM   flora AS plant
-WHERE  plant.species_name = 'Banksia'
-    OR plant.species_name = 'Sheoak'
-    OR plant.species_name = 'Wattle';
+SELECT
+  name,
+  ...
 ```
 
-Notice that `SELECT`, `FROM`, etc. are all right aligned while the actual column
-names and implementation specific details are left aligned.
-
-Although not exhaustive always include spaces:
-
-* before and after equals (`=`)
-* after commas (`,`)
-* surrounding apostrophes (`'`) where not within parentheses or with a trailing
-  comma or semicolon.
+Always rename aggregates and function-wrapped columns:
 
 ```sql
-SELECT album.title, album.release_date, album.recording_date
-FROM   albums AS album
-WHERE 
-      album.title = 'Charcoal Lane'
-   OR album.title = 'The New Danger';
+SELECT
+  name,
+  SUM(amount) AS sum_amount
+FROM ...
 ```
 
-#### Line spacing
-
-Always include newlines/vertical space:
-
-* before `AND` or `OR`
-* after semicolons to separate queries for easier reading
-* after each keyword definition
-* after a comma when separating multiple columns into logical groups
-* to separate code into related sections, which helps to ease the readability of
-  large chunks of code.
-
-Keeping all the keywords aligned to the righthand side and the values left aligned
-creates a uniform gap down the middle of query. It makes it much easier to scan
-the query definition over quickly too.
+Always rename all columns when selecting with table aliases:
 
 ```sql
-INSERT INTO albums (title, release_date, recording_date)
-VALUES ('Charcoal Lane', '1990-01-01 01:01:01.00000', '1990-01-01 01:01:01.00000'),
-       ('The New Danger', '2008-01-01 01:01:01.00000', '1990-01-01 01:01:01.00000');
+SELECT
+  projects.name AS project_name,
+  COUNT(backings.id) AS backings_count
+FROM ksr.backings AS backings
+INNER JOIN ksr.projects AS projects ON ...
 ```
+
+Always use `AS` to rename columns:
+
+__GOOD__:
 
 ```sql
-UPDATE albums
-   SET release_date = '1990-01-01 01:01:01.00000'
- WHERE title = 'The New Danger';
+SELECT
+  projects.name AS project_name,
+  COUNT(backings.id) AS backings_count
+...
 ```
+
+__BAD__:
 
 ```sql
-SELECT a.title,
-       a.release_date, a.recording_date, a.production_date -- grouped dates together
-  FROM albums AS a
- WHERE a.title = 'Charcoal Lane'
-    OR a.title = 'The New Danger';
+SELECT
+  projects.name project_name,
+  COUNT(backings.id) backings_count
+...
 ```
 
-### Indentation
-
-To ensure that SQL is readable it is important that standards of indentation
-are followed.
-
-#### Joins
-
-Joins should be indented to the other side of the river and grouped with a new
-line where necessary.
+Long Window functions should be split across multiple lines: one for the `PARTITION`, `ORDER` and frame clauses, aligned to the `PARTITION` keyword. Partition keys should be one-per-line, aligned to the first, with aligned commas. Order (`ASC`, `DESC`) should always be explicit. All window functions should be aliased.
 
 ```sql
-SELECT r.last_name
-  FROM riders AS r
-       INNER JOIN bikes AS b
-       ON r.bike_vin_num = b.vin_num
-          AND b.engines > 2
-
-       INNER JOIN crew AS c
-       ON r.crew_chief_last_name = c.last_name
-          AND c.chief = 'Y';
+SUM(1) OVER (PARTITION BY category_id,
+                          year
+             ORDER BY pledged DESC
+             ROWS UNBOUNDED PRECEDING) AS category_year
 ```
 
-#### Subqueries
+## `FROM`
 
-Subqueries should also be aligned to the right side of the river and then laid
-out using the same style as any other query. Sometimes it will make sense to have
-the closing parenthesis on a new line at the same character position as it's
-opening partner—this is especially true where you have nested subqueries.
+Only one table should be in the `FROM`. Never use `FROM`-joins:
+
+__GOOD__:
 
 ```sql
-SELECT r.last_name,
-       (SELECT MAX(YEAR(championship_date))
-          FROM champions AS c
-         WHERE c.last_name = r.last_name
-           AND c.confirmed = 'Y') AS last_championship_year
-  FROM riders AS r
- WHERE r.last_name IN
-       (SELECT c.last_name
-          FROM champions AS c
-         WHERE YEAR(championship_date) > '2008'
-           AND c.confirmed = 'Y');
+SELECT
+  projects.name AS project_name,
+  COUNT(backings.id) AS backings_count
+FROM ksr.projects AS projects
+INNER JOIN ksr.backings AS backings ON backings.project_id = projects.id
+...
 ```
 
-### Preferred formalisms
-
-* Make use of `BETWEEN` where possible instead of combining multiple statements
-  with `AND`.
-* Similarly use `IN()` instead of multiple `OR` clauses.
-* Where a value needs to be interpreted before leaving the database use the `CASE`
-  expression. `CASE` statements can be nested to form more complex logical structures.
-* Avoid the use of `UNION` clauses and temporary tables where possible. If the
-  schema can be optimised to remove the reliance on these features then it most
-  likely should be.
+__BAD__:
 
 ```sql
-SELECT CASE postcode
-       WHEN 'BN1' THEN 'Brighton'
-       WHEN 'EH1' THEN 'Edinburgh'
-       END AS city
-  FROM office_locations
- WHERE country = 'United Kingdom'
-   AND opening_time BETWEEN 8 AND 9
-   AND postcode IN ('EH1', 'BN1', 'NN1', 'KW1')
+SELECT
+  projects.name AS project_name,
+  COUNT(backings.id) AS backings_count
+FROM ksr.projects AS projects, ksr.backings AS backings
+WHERE
+  backings.project_id = projects.id
+...
 ```
 
-## Create syntax
+## `JOIN`
 
-When declaring schema information it is also important to maintain human
-readable code. To facilitate this ensure the column definitions are ordered and
-grouped where it makes sense to do so.
+Explicitly use `INNER JOIN` not just `JOIN`, making multiple lines of `INNER JOIN`s easier to scan:
 
-Indent column definitions by four (4) spaces within the `CREATE` definition.
-
-### Choosing data types
-
-* Where possible do not use vendor specific data types—these are not portable and
-  may not be available in older versions of the same vendor's software.
-* Only use `REAL` or `FLOAT` types where it is strictly necessary for floating
-  point mathematics otherwise prefer `NUMERIC` and `DECIMAL` at all times. Floating
-  point rounding errors are a nuisance!
-
-### Specifying default values
-
-* The default value must be the same type as the column—if a column is declared
-  a `DECIMAL` do not provide an `INTEGER` default value.
-* Default values must follow the data type declaration and come before any
-  `NOT NULL` statement.
-
-### Constraints and keys
-
-Constraints and their subset, keys, are a very important component of any
-database definition. They can quickly become very difficult to read and reason
-about though so it is important that a standard set of guidelines are followed.
-
-#### Choosing keys
-
-Deciding the column(s) that will form the keys in the definition should be a 
-carefully considered activity as it will effect performance and data integrity.
-
-1. The key should be unique to some degree.
-2. Consistency in terms of data type for the value across the schema and a lower
-   likelihood of this changing in the future.
-3. Can the value be validated against a standard format (such as one published by
-   ISO)? Encouraging conformity to point 2.
-4. Keeping the key as simple as possible whilst not being scared to use compound
-   keys where necessary.
-
-It is a reasoned and considered balancing act to be performed at the definition
-of a database. Should requirements evolve in the future it is possible to make
-changes to the definitions to keep them up to date.
-
-#### Defining constraints
-
-Once the keys are decided it is possible to define them in the system using
-constraints along with field value validation.
-
-##### General
-
-* Tables must have at least one key to be complete and useful.
-* Constraints should be given a custom name excepting `UNIQUE`, `PRIMARY KEY`
-  and `FOREIGN KEY` where the database vendor will generally supply sufficiently
-  intelligible names automatically.
-
-##### Layout and order
-
-* Specify the primary key first right after the `CREATE TABLE` statement.
-* Constraints should be defined directly beneath the column they correspond to.
-  Indent the constraint so that it aligns to the right of the column name.
-* If it is a multi-column constraint then consider putting it as close to both
-  column definitions as possible and where this is difficult as a last resort
-  include them at the end of the `CREATE TABLE` definition.
-* If it is a table level constraint that applies to the entire table then it
-  should also appear at the end.
-* Use alphabetical order where `ON DELETE` comes before `ON UPDATE`.
-* If it make senses to do so align each aspect of the query on the same character
-  position. For example all `NOT NULL` definitions could start at the same
-  character position. This is not hard and fast, but it certainly makes the code
-  much easier to scan and read.
-
-##### Validation
-
-* Use `LIKE` and `SIMILAR TO` constraints to ensure the integrity of strings
-  where the format is known.
-* Where the ultimate range of a numerical value is known it must be written as a
-  range `CHECK()` to prevent incorrect values entering the database or the silent
-  truncation of data too large to fit the column definition. In the least it
-  should check that the value is greater than zero in most cases.
-* `CHECK()` constraints should be kept in separate clauses to ease debugging.
-
-##### Example
+__GOOD__:
 
 ```sql
-CREATE TABLE staff (
-    PRIMARY KEY (staff_num),
-    staff_num      INT(5)       NOT NULL,
-    first_name     VARCHAR(100) NOT NULL,
-    pens_in_drawer INT(2)       NOT NULL,
-                   CONSTRAINT pens_in_drawer_range
-                   CHECK(pens_in_drawer >= 1 AND pens_in_drawer < 100)
-);
+SELECT
+  projects.name AS project_name,
+  COUNT(backings.id) AS backings_count
+FROM ksr.projects AS projects
+INNER JOIN ksr.backings AS backings ON ...
+INNER JOIN ...
+LEFT JOIN ksr.backer_rewards AS backer_rewards ON ...
+LEFT JOIN ...
 ```
 
-### Designs to avoid
+__BAD__:
 
-* Object oriented design principles do not effectively translate to relational
-  database designs—avoid this pitfall.
-* Placing the value in one column and the units in another column. The column
-  should make the units self evident to prevent the requirement to combine
-  columns again later in the application. Use `CHECK()` to ensure valid data is
-  inserted into the column.
-* [EAV (Entity Attribute Value)][eav] tables—use a specialist product intended for
-  handling such schema-less data instead.
-* Splitting up data that should be in one table across many because of arbitrary
-  concerns such as time-based archiving or location in a multi-national
-  organisation. Later queries must then work across multiple tables with `UNION`
-  rather than just simply querying one table.
+```sql
+SELECT
+  projects.name AS project_name,
+  COUNT(backings.id) AS backings_count
+FROM ksr.projects AS projects
+JOIN ksr.backings AS backings ON ...
+LEFT JOIN ksr.backer_rewards AS backer_rewards ON ...
+LEFT JOIN ...
+```
+
+Additional filters in the `INNER JOIN` go on new indented lines:
+
+```sql
+SELECT
+  projects.name AS project_name,
+  COUNT(backings.id) AS backings_count
+FROM ksr.projects AS projects
+INNER JOIN ksr.backings AS backings ON projects.id = backings.project_id
+  AND backings.project_country != 'US'
+...
+```
+
+The `ON` keyword and condition goes on the `INNER JOIN` line:
+
+```sql
+SELECT
+  projects.name AS project_name,
+  COUNT(backings.id) AS backings_count
+FROM ksr.projects AS projects
+INNER JOIN ksr.backings AS backings ON projects.id = backings.project_id
+...
+```
+
+Begin with `INNER JOIN`s and then list `LEFT JOIN`s, order them semantically, and do not intermingle `LEFT JOIN`s with `INNER JOIN`s unless necessary:
+
+__GOOD__:
+
+```sql
+INNER JOIN ksr.backings AS backings ON ...
+INNER JOIN ksr.users AS users ON ...
+INNER JOIN ksr.locations AS locations ON ...
+LEFT JOIN ksr.backer_rewards AS backer_rewards ON ...
+LEFT JOIN ...
+```
+
+__BAD__:
+
+```sql
+LEFT JOIN ksr.backer_rewards AS backer_rewards ON backings
+INNER JOIN ksr.users AS users ON ...
+LEFT JOIN ...
+INNER JOIN ksr.locations AS locations ON ...
+```
+
+## `WHERE`
+
+Multiple `WHERE` clauses should go on different lines and begin with the SQL operator:
+
+```sql
+SELECT
+  name,
+  goal
+FROM ksr.projects AS projects
+WHERE
+  country = 'US'
+  AND deadline >= '2015-01-01'
+...
+```
+
+## `CASE`
+
+`CASE` statements aren't always easy to format but try to align `WHEN`, `THEN`, and `ELSE` together inside `CASE` and `END`:
+
+```sql
+CASE WHEN category = 'Art'
+     THEN backer_id
+     ELSE NULL
+END
+```
+
+## Common Table Expressions (CTEs)
+
+[From AWS](http://docs.aws.amazon.com/redshift/latest/dg/r_WITH_clause.html):
+
+>`WITH` clause subqueries are an efficient way of defining tables that can be used throughout the execution of a single query. In all cases, the same results can be achieved by using subqueries in the main body of the `SELECT` statement, but `WITH` clause subqueries may be simpler to write and read.
+
+The body of a CTE must be one indent further than the `WITH` keyword. Open them at the end of a line and close them on a new line:
+
+```sql
+WITH backings_per_category AS (
+  SELECT
+    category_id,
+    deadline,
+    ...
+)
+```
+
+Multiple CTEs should be formatted accordingly:
+
+```sql
+WITH backings_per_category AS (
+  SELECT
+    ...
+), backers AS (
+  SELECT
+    ...
+), backers_and_creators AS (
+  ...
+)
+SELECT * FROM backers;
+```
+
+If possible, `JOIN` CTEs inside subsequent CTEs, not in the main clause:
+
+__GOOD__:
+
+```sql
+WITH backings_per_category AS (
+  SELECT
+    ...
+), backers AS (
+  SELECT
+    backer_id,
+    COUNT(backings_per_category.id) AS projects_backed_per_category
+  INNER JOIN ksr.users AS users ON users.id = backings_per_category.backer_id
+), backers_and_creators AS (
+  ...
+)
+SELECT * FROM backers_and_creators;
+```
+
+__BAD__:
+
+```sql
+WITH backings_per_category AS (
+  SELECT
+    ...
+), backers AS (
+  SELECT
+    backer_id,
+    COUNT(backings_per_category.id) AS projects_backed_per_category
+), backers_and_creators AS (
+  ...
+)
+SELECT * FROM backers_and_creators
+INNER JOIN backers ON backers_and_creators ON backers.backer_id = backers_and_creators.backer_id
+```
+
+Always use CTEs over inlined subqueries.
 
 
 ## Appendix
@@ -1270,28 +1310,3 @@ YEAR_MONTH
 ZEROFILL
 ZONE
 ```
-
-[simon]: https://www.simonholywell.com/?utm_source=sqlstyle.guide&utm_medium=link&utm_campaign=md-document
-    "SimonHolywell.com"
-[issue]: https://github.com/treffynnon/sqlstyle.guide/issues
-    "SQL style guide issues on GitHub"
-[fork]: https://github.com/treffynnon/sqlstyle.guide/fork
-    "Fork SQL style guide on GitHub"
-[pull]: https://github.com/treffynnon/sqlstyle.guide/pulls/
-    "SQL style guide pull requests on GitHub"
-[celko]: https://www.amazon.com/gp/product/0120887975/ref=as_li_ss_tl?ie=UTF8&linkCode=ll1&tag=treffynnon-20&linkId=9c88eac8cd420e979675c815771313d5
-    "Joe Celko's SQL Programming Style (The Morgan Kaufmann Series in Data Management Systems)"
-[dl-md]: https://raw.githubusercontent.com/treffynnon/sqlstyle.guide/gh-pages/_includes/sqlstyle.guide.md
-    "Download the guide in Markdown format"
-[iso-8601]: https://en.wikipedia.org/wiki/ISO_8601
-    "Wikipedia: ISO 8601"
-[rivers]: http://practicaltypography.com/one-space-between-sentences.html
-    "Practical Typography: one space between sentences"
-[reserved-keywords]: #reserved-keyword-reference
-    "Reserved keyword reference" 
-[eav]: https://en.wikipedia.org/wiki/Entity%E2%80%93attribute%E2%80%93value_model
-    "Wikipedia: Entity–attribute–value model"
-[self]: http://www.sqlstyle.guide
-    "SQL style guide by Simon Holywell"
-[licence]: http://creativecommons.org/licenses/by-sa/4.0/
-    "Creative Commons Attribution-ShareAlike 4.0 International License"
