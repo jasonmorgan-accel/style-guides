@@ -1,5 +1,5 @@
 ---
-title: Notes on SQL in SfMC
+title: Notes on SQL in SFMC
 category: SQL
 order: 14
 nav: true

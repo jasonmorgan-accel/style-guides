@@ -1,5 +1,5 @@
 ---
-title: Notes on SQL in BigQuery
+title: Notes on SQL in Selligent
 category: SQL
 order: 12
 nav: true

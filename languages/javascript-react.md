@@ -9,7 +9,6 @@ nav: true
 
 This needs to be reviewed and developed on.  But this ia a good place to start.
 
-
 # Installing
 
 The rules described in this repository are also available as a NPM package.
