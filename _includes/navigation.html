@@ -1,17 +1,23 @@
 {% assign menus = site.pages | where: 'nav', true | sort: 'order' | group_by: 'category' %}
 {% for cat in menus %}
-	{% if cat.name && cat.name != "Home" %}
 		<!-- get  the  first item-->
 		{% assign root_item = cat.items.first %}
-		{% assign items = cat.items | shift%}
+		{% assign items = cat.items %}
+		{% if cat.name == "Home" %}
+			{% assign items = cat.items | shift %}
 		
-		<p></p>
-		
-		<a href="{{ root_item.url | prepend: site.baseurl }}" class="navbar-{% if items.size > 0 %}link{% else %}item{% endif %} {% if root_item.url == page.url %}is-active{% endif %}"><h2>{{ cat.name }}</h2></a>
-
-			{% for item in items %}
-				<a href="{{ item.url | prepend: site.baseurl }}" class="navbar-item {% if item.url == page.url %}is-active{% endif %}">{{ item.title }}</a>
-			{% endfor %}
-
-	{% endif %}
-{% endfor %}
+		{% else %}
+		<ul class="block-list">
+			<li>
+				<h3>{{ cat.name }}</h3>
+				<ul>
+				{% for item in items %}
+					<li>
+						<a href="{{ item.url | prepend: site.baseurl }}" class="navbar-item {% if item.url == page.url %}is-active{% endif %}">{{ item.title }}</a>
+					</li>
+				{% endfor %}
+				</ul>
+			</li>
+		</ul>
+		{% endif %}
+{% endfor %} 

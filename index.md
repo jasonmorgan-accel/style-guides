@@ -6,4 +6,8 @@ order: 1
 nav: true
 ---
 ## Overview
-These guide are to assist in aligning development practices across the our teams.  
+
+These guide are to assist in aligning development practices across teams.  
+
+## Guides
+

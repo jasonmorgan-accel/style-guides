@@ -1,6 +1,37 @@
 .button.is-info {
 	margin: 7px;
+	background-color: #44545f;
 }
+
+.navbar.is-primary {
+	background-color: #152a61;
+}
+
+
+a.navbar-item.is-active, .navbar-link.is-active {
+	color: #ffffff;
+}
+a.navbar-item.is-active:hover, .navbar-link.is-active:hover {
+	color: #000000	;
+}
+.hero.is-primary {
+	background-color: #2d3f96;
+}
+.hero.is-primary.is-bold {
+	background-image: none;
+}
+
+h2 {
+    font-size: 200%;
+    margin: 1rem auto 1rem auto;
+    font-weight: bold;
+}
+
+h3 {
+    font-size: 150%;
+    font-weight: bold;
+}
+
 
 @media screen and (min-width: 769px), print {
 	.hero.is-medium .hero-body {
